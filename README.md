@@ -112,3 +112,45 @@
 ### устанавливаю percona-release (nginx я не могу установить, т.к. он уже установлен, и не могу его удалить т.к. тогда не увижу свой репозиторий)
 
 	yum install percona-release -y
+
+
+	    centos: Loaded plugins: fastestmirror
+	    centos: Loading mirror speeds from cached hostfile
+	    centos:  * base: mirror.docker.ru
+	    centos:  * epel: fedora-mirror02.rbc.ru
+	    centos:  * extras: mirror.docker.ru
+	    centos:  * updates: dedic.sh
+	    centos: Resolving Dependencies
+	    centos: --> Running transaction check
+	    centos: ---> Package percona-release.noarch 0:0.1-6 will be installed
+	    centos: --> Finished Dependency Resolution
+	    centos:
+	    centos: Dependencies Resolved
+	    centos:
+	    centos: ================================================================================
+	    centos:  Package                  Arch            Version           Repository     Size
+	    centos: ================================================================================
+	    centos: Installing:
+	    centos:  percona-release          noarch          0.1-6             otus           14 k
+	    centos:
+	    centos: Transaction Summary
+	    centos: ================================================================================
+	    centos: Install  1 Package
+	    centos:
+	    centos: Total download size: 14 k
+	    centos: Installed size: 16 k
+	    centos: Downloading packages:
+	    centos: Running transaction check
+	    centos: Running transaction test
+	    centos: Transaction test succeeded
+	    centos: Running transaction
+	    centos:   Installing : percona-release-0.1-6.noarch                                 1/1
+	    centos:
+	    centos:   Verifying  : percona-release-0.1-6.noarch                                 1/1
+	    centos:
+	    centos:
+	    centos: Installed:
+	    centos:   percona-release.noarch 0:0.1-6
+	    centos:
+	    centos: Complete!
+
