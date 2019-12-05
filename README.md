@@ -12,78 +12,103 @@
 
 ### Устаналиваем зависимости 
 
-yum install -y redhat-lsb-core wget rpmdevtools rpm-build createrepo yum-utils
+	yum install -y redhat-lsb-core wget rpmdevtools rpm-build createrepo yum-utils
 
 ### Скачиваю пакет с исходниками nginx и openssl, устаналиваю nginx и распаковываю архив openssl
 
-wget http://nginx.org/packages/centos/7/SRPMS/nginx-1.16.1-1.el7.ngx.src.rpm
-wget https://www.openssl.org/source/latest.tar.gz
-rpm -i nginx-1.16.1-1.el7.ngx.src.rpm
-tar -xvf latest.tar.gz
+	wget http://nginx.org/packages/centos/7/SRPMS/nginx-1.16.1-1.el7.ngx.src.rpm
+	wget https://www.openssl.org/source/latest.tar.gz
+	rpm -i nginx-1.16.1-1.el7.ngx.src.rpm
+	tar -xvf latest.tar.gz
 
 ### Устанавливаю зависимости для сборки nginx
 
-yum-builddep /root/rpmbuild/SPECS/nginx.spec -y
+	yum-builddep /root/rpmbuild/SPECS/nginx.spec -y
 
 ### в nginx.spec меняю опцию --with-debug на --with-openssl=/root/openssl-1.1.1d
 
-sed -i 's/with-debug/with-openssl=\/root\/openssl-1.1.1d/' /root/rpmbuild/SPECS/nginx.spec
+	sed -i 's/with-debug/with-openssl=\/root\/openssl-1.1.1d/' /root/rpmbuild/SPECS/nginx.spec
 
 ### сборка
 
-rpmbuild -bb /root/rpmbuild/SPECS/nginx.spec
+	rpmbuild -bb /root/rpmbuild/SPECS/nginx.spec
 
 ### устаналиваю собранный пакет 
 
-yum localinstall -y rpmbuild/RPMS/x86_64/nginx-1.16.1-1.el7.ngx.x86_64.rpm
+	yum localinstall -y rpmbuild/RPMS/x86_64/nginx-1.16.1-1.el7.ngx.x86_64.rpm
 
 ### запускаю, проверяю
 
-systemctl start nginx
-systemctl status nginx
+	systemctl start nginx
+	systemctl status nginx
+	● nginx.service - nginx - high performance web server
+	   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+	   Active: active (running) since Чт 2019-12-05 11:16:47 UTC; 7min ago
+	     Docs: http://nginx.org/en/docs/
+	  Process: 12947 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf (code=exited, status=0/SUCCESS)
+	 Main PID: 12948 (nginx)
+	   CGroup: /system.slice/nginx.service
+	           ├─12948 nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf
+	           └─12959 nginx: worker process
+
+
+
 
 ### создаю папку для репозитория в дефолт папке nginx
 
-mkdir /usr/share/nginx/html/repo
+	mkdir /usr/share/nginx/html/repo
 
 ### копирую в repo собранный nginx и допольнительно качаю туда percona-release
 
-cp /root/rpmbuild/RPMS/x86_64/nginx-1.16.1-1.el7.ngx.x86_64.rpm /usr/share/nginx/html/repo/
-wget http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm -O /usr/share/nginx/html/repo/percona-release-0.1-6.noarch.rpm
+	cp /root/rpmbuild/RPMS/x86_64/nginx-1.16.1-1.el7.ngx.x86_64.rpm /usr/share/nginx/html/repo/
+	wget http://www.percona.com/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm -O /usr/share/nginx/html/repo/percona-release-0.1-6.noarch.rpm
 
 ### утилитой createrepo создаю там репозиторий
 
-createrepo /usr/share/nginx/html/repo/
+	createrepo /usr/share/nginx/html/repo/
 
 ### добавляю в конфиг nginx опцию autoindex чтобы увидеть свой файлы в подпапке repo
 
-sed -i '/index.htm;/ a\ autoindex on;'  /etc/nginx/conf.d/default.conf
+	sed -i '/index.htm;/ a\ autoindex on;'  /etc/nginx/conf.d/default.conf
 
 ### перечитаю конфиг nginx
 
-nginx -t
-nginx -s reload
+	nginx -t
+	nginx -s reload
 
 ### с помощью curl вижу что файлы доступны через браузер
 
-curl -a http://localhost/repo
+	curl -a http://localhost/repo
+	<html>
+	<head><title>Index of /repo/</title></head>
+	<body>
+	<h1>Index of /repo/</h1><hr><pre><a href="../">../</a>
+	<a href="repodata/">repodata/</a>                                          05-Dec-2019 11:16                   -
+	<a href="nginx-1.16.1-1.el7.ngx.x86_64.rpm">nginx-1.16.1-1.el7.ngx.x86_64.rpm</a>                  05-Dec-2019 11:16              783620
+	<a href="percona-release-0.1-6.noarch.rpm">percona-release-0.1-6.noarch.rpm</a>                   13-Jun-2018 06:34               14520
+	</pre><hr></body>
+	</html>	
+
+
 
 ### добавляю репозиторий в yum
 
-cat >> /etc/yum.repos.d/otus.repo << EOF
-[otus]
-name=otus-linux
-baseurl=http://localhost/repo
-gpgcheck=0
-enabled=1
-EOF
+	cat >> /etc/yum.repos.d/otus.repo << EOF
+	[otus]
+	name=otus-linux
+	baseurl=http://localhost/repo
+	gpgcheck=0
+	enabled=1
+	EOF
 
 ### проверяю yum
 
-yum repolist enabled | grep otus
-yum list | grep otus
+	yum repolist enabled | grep otus
+	otus                            otus-linux                                     2
+
+	yum list | grep otus
+	percona-release.noarch                  0.1-6                          @otus
 
 ### устанавливаю percona-release (nginx я не могу установить, т.к. он уже установлен, и не могу его удалить т.к. тогда не увижу свой репозиторий)
 
-yum install percona-release -y
-
+	yum install percona-release -y
