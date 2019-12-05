@@ -28,30 +28,6 @@ Vagrant.configure("2") do |config|
           end
 
           box.vm.provision "shell", inline: <<-SHELL
-#          mkdir -p ~root/.ssh
-#          cp ~vagrant/.ssh/auth* ~root/.ssh
-#           yum install epel-release -y -q
-#           yum install fish wget -y -q
-# Install tools for building rpm
-#           yum install rpmdevtools rpm-build -y -q
-#           yum install tree yum-utils mc wget gcc vim git -y -q
-# Install tools for building woth mock and make prepares    
-#           yum install mock -y -q
-#           usermod -a -G mock root
-# Install tools for creating your own REPO
-#           yum install nginx -y -q
-#           yum install createrepo -y -q
-# Install docker-ce
-#           sudo yum install -y -q yum-utils links \
-#           device-mapper-persistent-data \
-#           lvm2
-#           sudo yum-config-manager \
-#           --add-repo \
-#           https://download.docker.com/linux/centos/docker-ce.repo
-#           yum install docker-ce docker-compose -y -q
-#           systemctl start docker
-#           docker run hello-world
-
 yum install epel-release -y
 yum install -y gcc redhat-lsb-core wget rpmdevtools rpm-build createrepo yum-utils
 cd /root
