@@ -10,7 +10,7 @@
 
 [vagrantfile со скриптом](Vagrantfile)
 
-### Устаналиваем зависимости 
+### Устаналиваем зависимости для сборки пакетов и создания репозитория
 
 	yum install -y redhat-lsb-core wget rpmdevtools rpm-build createrepo yum-utils
 
